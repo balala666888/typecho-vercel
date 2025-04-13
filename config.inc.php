@@ -36,7 +36,7 @@ Typecho_Common::init();
 /** 定义数据库参数 */
 $db = new Typecho_Db('Pdo_Mysql', 'typecho_');
 $db->addServer(array (
-  'host' => 'pro.freedb.tech',
+  'host' => 'sql.freedb.tech',
   'user' => 'freedb_hua8013',
   'password' => '&EJKqs*Js#3CWYe',
   'charset' => 'utf8mb4',

@@ -1,17 +1,22 @@
 <?php
-require 'vendor/autoload.php'; // 根据你的项目结构调整autoload.php的路径
+session_start();
 
-use GuzzleHttp\Client;
+// 假设我们有一个名为 $username 和 $password 的POST请求
+$username = $_POST['username'];
+$password = $_POST['password'];
 
-$client = new Client();
-$response = $client->request('GET', 'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd');
+// 这里我们硬编码了用户名和密码，仅用于示例
+$valid_username = 'admin';
+$valid_password = 'password123';
 
-$data = json_decode($response->getBody()->getContents(), true);
-
-if (isset($data['bitcoin']['usd'])) {
-    $bitcoinPrice = $data['bitcoin']['usd'];
-    echo "当前比特币价格为: " . $bitcoinPrice . " USD";
+if ($username == $valid_username && $password == $valid_password) {
+    // 登录成功，设置会话变量
+    $_SESSION['loggedin'] = true;
+    $_SESSION['username'] = $username;
+    header("Location: welcome.php"); // 重定向到欢迎页面
+    exit();
 } else {
-    echo "无法获取比特币价格。";
+    // 登录失败，显示错误消息
+    echo "用户名或密码错误。";
 }
 ?>

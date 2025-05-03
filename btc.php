@@ -1,31 +1,34 @@
 <?php
-// 定义API请求参数  
-$symbol = 'BTCUSDT';  
-$api_url = "https://api.binance.com/api/v3/ticker/price?symbol=$symbol";  
+require __DIR__ . '/vendor/autoload.php';
 
-// 初始化cURL请求:ml-citation{ref="2" data="citationList"}  
-$ch = curl_init();  
-curl_setopt($ch, CURLOPT_URL, $api_url);  
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);  
-curl_setopt($ch, CURLOPT_TIMEOUT, 5);  // 设置超时时间  
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
 
-// 发送请求并解析响应  
-$response = curl_exec($ch);  
-if (curl_errno($ch)) {  
-    die("请求失败: " . curl_error($ch));  
-}  
-curl_close($ch);  
+try {
+    $client = new Client([
+        'base_uri' => 'https://www.okx.com/api/v5/', // 欧易 API 基础地址:ml-citation{ref="5,6" data="citationList"}
+        'timeout' => 3.0,
+        'headers' => ['Accept' => 'application/json']
+    ]);
 
-// 解码JSON数据  
-$data = json_decode($response, true);  
-if (json_last_error() !== JSON_ERROR_NONE) {  
-    die("JSON解析失败: " . json_last_error_msg());  
-}  
+    // 请求现货交易对最新价格接口
+    $response = $client->get('market/ticker', [
+        'query' => ['instId' => 'BTC-USDT'] // 指定比特币/USDT交易对:ml-citation{ref="5,6" data="citationList"}
+    ]);
 
-// 输出价格信息  
-if (isset($data['price'])) {  
-    echo "当前比特币价格（BTC/USDT）: " . $data['price'];  
-} else {  
-    echo "未获取到有效价格数据";  
-}  
-?>
+    $data = json_decode($response->getBody(), true);
+    $latestPrice = $data['data'][0]['last'] ?? null;
+
+    if ($latestPrice) {
+        echo "【欧易比特币实时价格】\n";
+        echo "当前价：$latestPrice USDT\n";
+        echo "更新时间：" . date('Y-m-d H:i:s') . "\n";
+    } else {
+        throw new Exception('价格数据解析异常');
+    }
+
+} catch (GuzzleException $e) {
+    die("API 请求失败: " . $e->getMessage() . ":ml-citation{ref="6" data="citationList"}");
+} catch (Exception $e) {
+    die("程序错误: " . $e->getMessage());
+}
